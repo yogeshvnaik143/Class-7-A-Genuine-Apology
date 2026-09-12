@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { 
@@ -20,7 +20,9 @@ import {
   RefreshCw,
   Send,
   MessageCircleQuestion,
-  ChevronRight
+  ChevronRight,
+  ArrowRight,
+  Trophy
 } from 'lucide-react';
 import { SlideContent, LanguageMode } from '../types';
 import { sound } from '../utils/audio';
@@ -65,15 +67,31 @@ interface SlideRendererProps {
   showTeacherNotes: boolean;
   totalSlides?: number;
   onOpenGoogleSlidesModal: () => void;
+  onNextUnit?: () => void;
+  onOpenCompletionNote?: () => void;
+  hasNextUnit?: boolean;
 }
 
 export const SlideRenderer: React.FC<SlideRendererProps> = ({
   slide,
   langMode,
   showTeacherNotes,
-  totalSlides,
-  onOpenGoogleSlidesModal
+  totalSlides = 18,
+  onOpenGoogleSlidesModal,
+  onNextUnit,
+  onOpenCompletionNote,
+  hasNextUnit = true
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isLastSlide = slide.slideNumber === totalSlides;
+
+  // Always reset scroll position when slide changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [slide.id]);
+
   // Interactive state for quiz slide
   const [selectedQuizAnswers, setSelectedQuizAnswers] = useState<Record<string, boolean>>({});
   const [showQuizExplanations, setShowQuizExplanations] = useState<Record<string, boolean>>({});
@@ -141,21 +159,24 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
   };
 
   return (
-    <div className="w-full h-full flex-1 flex flex-col justify-between overflow-y-auto px-4 py-4 md:px-8 md:py-6 bg-slate-950 text-slate-100">
+    <div 
+      ref={scrollContainerRef}
+      className="w-full h-full flex flex-col overflow-y-auto overscroll-contain px-4 py-3 md:px-8 md:py-5 bg-slate-950 text-slate-100 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900/50"
+    >
       {/* Slide Header / Category & Title */}
       <motion.div
         key={`header-${slide.id}`}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="mb-3"
+        className="mb-3 shrink-0"
       >
         <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
           <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
             {langMode === 'kn' ? slide.categoryKn : slide.categoryEn}
           </span>
           <span className="text-xs text-slate-400 font-mono">
-            Slide {slide.slideNumber} of {totalSlides || 16}
+            Slide {slide.slideNumber} of {totalSlides || 18}
           </span>
         </div>
 
@@ -186,8 +207,8 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         )}
       </motion.div>
 
-      {/* Main Slide Interactive Body */}
-      <div className="flex-1 flex flex-col justify-center my-2">
+      {/* Main Slide Interactive Body (Scrollable with my-auto centering) */}
+      <div className="flex-1 flex flex-col my-auto py-2 min-h-0">
         <AnimatePresence mode="wait">
           {/* SLIDE 1: COVER */}
           {slide.visualType === 'cover' && (
@@ -1272,13 +1293,68 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         </AnimatePresence>
       </div>
 
+      {/* End-of-Slide Action Strip with Next Unit button */}
+      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 shrink-0 select-none">
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[11px]">
+            {slide.categoryEn.split('•')[0]}
+          </span>
+          {isLastSlide && (
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 font-semibold text-[11px] animate-pulse">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Unit Completed • ಘಟಕ ಪೂರ್ಣಗೊಂಡಿದೆ!</span>
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* View Unit Completion Note Button */}
+          {isLastSlide && onOpenCompletionNote && (
+            <button
+              onClick={() => {
+                sound.playChime();
+                onOpenCompletionNote();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold transition-all shadow"
+              title="View Beautiful Unit Note (ಶಿಕ್ಷಕರ ಸಂದೇಶ)"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>Unit Note</span>
+              <span className="font-kannada text-[11px]">ಶಿಕ್ಷಕರ ಸಂದೇಶ</span>
+            </button>
+          )}
+
+          {/* Next Unit Button at the end of slide */}
+          {onNextUnit && (
+            <button
+              onClick={() => {
+                sound.playChime();
+                onNextUnit();
+              }}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold transition-all shadow-md active:scale-95 ${
+                isLastSlide
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 ring-2 ring-amber-400/40'
+                  : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
+              }`}
+              title="Proceed to Next Unit (ಮುಂದಿನ ಘಟಕ)"
+            >
+              <span>{hasNextUnit ? 'Next Unit' : 'All Units Done'}</span>
+              <span className="font-kannada text-[11px] hidden sm:inline">
+                {hasNextUnit ? 'ಮುಂದಿನ ಘಟಕ' : 'ಮುಕ್ತಾಯ'}
+              </span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Teacher / Facilitator Note Drawer at Bottom (Toggled from Navbar) */}
       {showTeacherNotes && slide.teacherNoteEn && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
-          className="mt-3 p-3 rounded-xl bg-blue-950/60 border border-blue-500/40 text-xs space-y-1 select-text"
+          className="mt-3 p-3 rounded-xl bg-blue-950/60 border border-blue-500/40 text-xs space-y-1 select-text shrink-0"
         >
           <div className="flex items-center gap-1.5 font-bold text-blue-300">
             <Lightbulb className="w-4 h-4 text-amber-400" />

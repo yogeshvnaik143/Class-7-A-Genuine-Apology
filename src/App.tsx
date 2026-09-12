@@ -10,6 +10,21 @@ import { SlideThumbnails } from './components/SlideThumbnails';
 import { ChapterSelectorModal } from './components/ChapterSelectorModal';
 import { GoogleSlidesModal } from './components/GoogleSlidesModal';
 import { PrintModal } from './components/PrintModal';
+import { UnitCompletionModal } from './components/UnitCompletionModal';
+
+const UNIT_KEYS = [
+  'unit-1',
+  'unit-2',
+  'unit-3',
+  'unit-4',
+  'unit-5',
+  'unit-6',
+  'unit-7',
+  'unit-8',
+  'unit-9',
+  'unit-10',
+  'unit-11'
+];
 
 export default function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>('home');
@@ -24,6 +39,7 @@ export default function App() {
   const [isChapterSelectorOpen, setIsChapterSelectorOpen] = useState(false);
   const [isGoogleSlidesModalOpen, setIsGoogleSlidesModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -33,12 +49,17 @@ export default function App() {
   const currentSlide = activeDeck[currentSlideIndex] || activeDeck[0];
   const currentUnitMeta = UNITS_METADATA.find(u => u.id === selectedUnitId) || UNITS_METADATA[0];
 
+  const currentUnitIndex = UNIT_KEYS.indexOf(selectedUnitId);
+  const hasNextUnit = currentUnitIndex !== -1 && currentUnitIndex < UNIT_KEYS.length - 1;
+  const isLastSlide = currentSlideIndex === activeDeck.length - 1;
+
   // Unit Selection Handler
   const handleSelectUnit = useCallback((unitId: string) => {
     SpeechNarrator.stop();
     setIsSpeaking(false);
     setSelectedUnitId(unitId);
     setCurrentSlideIndex(0);
+    setIsCompletionModalOpen(false);
     setViewMode('teach');
   }, []);
 
@@ -47,8 +68,23 @@ export default function App() {
     SpeechNarrator.stop();
     setIsSpeaking(false);
     setIsAutoplay(false);
+    setIsCompletionModalOpen(false);
     setViewMode('home');
   }, []);
+
+  // Next Unit Navigation
+  const handleNextUnit = useCallback(() => {
+    SpeechNarrator.stop();
+    setIsSpeaking(false);
+    const currIdx = UNIT_KEYS.indexOf(selectedUnitId);
+    if (currIdx !== -1 && currIdx < UNIT_KEYS.length - 1) {
+      const nextId = UNIT_KEYS[currIdx + 1];
+      handleSelectUnit(nextId);
+    } else {
+      // Completed all 11 units, trigger grand celebration note
+      setIsCompletionModalOpen(true);
+    }
+  }, [selectedUnitId, handleSelectUnit]);
 
   // Navigation callbacks
   const handlePrevSlide = useCallback(() => {
@@ -66,6 +102,8 @@ export default function App() {
       setCurrentSlideIndex(prev => prev + 1);
     } else {
       setIsAutoplay(false);
+      // Reached the end of the unit, show the beautiful note!
+      setIsCompletionModalOpen(true);
     }
   }, [currentSlideIndex, activeDeck.length]);
 
@@ -169,7 +207,9 @@ export default function App() {
   return (
     <div 
       ref={containerRef}
-      className="w-full h-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-amber-500 selection:text-slate-950"
+      className={`w-full bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950 ${
+        viewMode === 'home' ? 'min-h-screen overflow-y-auto' : 'h-screen flex flex-col overflow-hidden'
+      }`}
     >
       {viewMode === 'home' ? (
         <HomePage
@@ -206,18 +246,21 @@ export default function App() {
           />
 
           {/* 16:9 Presentation Stage Viewport */}
-          <main className="flex-1 w-full h-full flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950 overflow-hidden relative">
+          <main className="flex-1 w-full min-h-0 flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950 overflow-hidden relative">
             {/* Ambient subtle glow behind slide */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none" />
 
-            {/* Strict 16:9 Presentation Frame */}
-            <div className="relative w-full max-w-[1560px] aspect-[16/9] max-h-[calc(100vh-125px)] bg-slate-900/95 rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl shadow-black flex flex-col overflow-hidden ring-1 ring-white/5">
+            {/* Strict 16:9 Presentation Frame with scrollable content inside */}
+            <div className="relative w-full max-w-[1560px] aspect-[16/9] max-h-[calc(100vh-125px)] min-h-[440px] bg-slate-900/95 rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl shadow-black flex flex-col overflow-hidden ring-1 ring-white/5">
               <SlideRenderer
                 slide={currentSlide}
                 langMode={langMode}
                 showTeacherNotes={showTeacherNotes}
                 totalSlides={activeDeck.length}
                 onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+                onNextUnit={handleNextUnit}
+                onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
+                hasNextUnit={hasNextUnit}
               />
             </div>
           </main>
@@ -231,6 +274,9 @@ export default function App() {
             onOpenThumbnails={() => setIsThumbnailsOpen(true)}
             onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
             onGoHome={handleGoHome}
+            onNextUnit={handleNextUnit}
+            onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
+            hasNextUnit={hasNextUnit}
           />
         </div>
       )}
@@ -259,6 +305,21 @@ export default function App() {
           setCurrentSlideIndex(idx);
         }}
         slides={activeDeck}
+      />
+
+      {/* Beautiful Unit Completion Note & Celebration Modal */}
+      <UnitCompletionModal
+        isOpen={isCompletionModalOpen}
+        onClose={() => setIsCompletionModalOpen(false)}
+        unitId={selectedUnitId}
+        langMode={langMode}
+        onProceedToNextUnit={(nextId) => {
+          handleSelectUnit(nextId);
+        }}
+        onGoHome={handleGoHome}
+        onReviewUnit={() => {
+          setCurrentSlideIndex(0);
+        }}
       />
 
       {/* Google Slides Export Dialog */}

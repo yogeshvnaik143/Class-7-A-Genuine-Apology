@@ -10,6 +10,9 @@ interface SlideNavProps {
   onOpenThumbnails: () => void;
   onOpenChapterSelector?: () => void;
   onGoHome?: () => void;
+  onNextUnit?: () => void;
+  onOpenCompletionNote?: () => void;
+  hasNextUnit?: boolean;
 }
 
 export const SlideNav: React.FC<SlideNavProps> = ({
@@ -19,9 +22,13 @@ export const SlideNav: React.FC<SlideNavProps> = ({
   onNext,
   onOpenThumbnails,
   onOpenChapterSelector,
-  onGoHome
+  onGoHome,
+  onNextUnit,
+  onOpenCompletionNote,
+  hasNextUnit = true,
 }) => {
   const progressPercent = ((currentIndex + 1) / total) * 100;
+  const isLastSlide = currentIndex === total - 1;
 
   return (
     <footer className="w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 px-3 sm:px-4 py-2 flex flex-col gap-1.5 z-30 select-none">
@@ -98,7 +105,7 @@ export const SlideNav: React.FC<SlideNavProps> = ({
           )}
         </div>
 
-        {/* Prev / Next buttons */}
+        {/* Prev / Next & Next Unit buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             id="prev-slide-btn"
@@ -116,10 +123,10 @@ export const SlideNav: React.FC<SlideNavProps> = ({
 
           <button
             id="next-slide-btn"
-            disabled={currentIndex === total - 1}
+            disabled={isLastSlide}
             onClick={() => { sound.playPop(); onNext(); }}
             className={`flex items-center gap-1 px-3.5 py-1.5 rounded-lg border font-semibold transition-all ${
-              currentIndex === total - 1
+              isLastSlide
                 ? 'opacity-40 cursor-not-allowed bg-slate-800/40 border-slate-800 text-slate-500'
                 : 'bg-emerald-600 border-emerald-500 text-white shadow-md hover:bg-emerald-500 active:scale-95'
             }`}
@@ -127,6 +134,45 @@ export const SlideNav: React.FC<SlideNavProps> = ({
             <span>Next</span>
             <ChevronRight className="w-4 h-4" />
           </button>
+
+          {/* Unit Note Button on Last Slide */}
+          {isLastSlide && onOpenCompletionNote && (
+            <button
+              id="view-unit-note-nav-btn"
+              onClick={() => {
+                sound.playChime();
+                onOpenCompletionNote();
+              }}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold transition-all shadow"
+              title="View Beautiful Unit Note (ಶಿಕ್ಷಕರ ಸಂದೇಶ)"
+            >
+              <span>Note</span>
+              <span className="font-kannada text-[11px] hidden md:inline">ಸಂದೇಶ</span>
+            </button>
+          )}
+
+          {/* Next Unit Button */}
+          {onNextUnit && (
+            <button
+              id="next-unit-nav-btn"
+              onClick={() => {
+                sound.playChime();
+                onNextUnit();
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold text-xs transition-all shadow-md active:scale-95 ${
+                isLastSlide
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 border-amber-400 text-slate-950 animate-pulse hover:from-amber-400 hover:to-amber-500'
+                  : 'bg-amber-500/20 border-amber-500/40 text-amber-300 hover:bg-amber-500/30'
+              }`}
+              title="Proceed to Next Unit (ಮುಂದಿನ ಘಟಕ)"
+            >
+              <span>{hasNextUnit ? 'Next Unit' : 'Finish Units'}</span>
+              <span className="font-kannada text-[11px] hidden md:inline">
+                {hasNextUnit ? 'ಮುಂದಿನ ಘಟಕ' : 'ಮುಕ್ತಾಯ'}
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </footer>
