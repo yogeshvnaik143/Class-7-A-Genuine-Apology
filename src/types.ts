@@ -65,8 +65,37 @@ export interface RolePlayScenario {
   goodWhyKn: string;
 }
 
+export interface ChapterInfo {
+  id: string;
+  chapterNumber: string;
+  titleEn: string;
+  titleKn: string;
+  unitId: string;
+  unitTitleEn: string;
+  unitTitleKn: string;
+  pageRange: string;
+  subValueEn: string;
+  subValueKn: string;
+  summaryEn: string;
+  summaryKn: string;
+  slideIds: string[];
+}
+
+export interface UnitInfo {
+  id: string;
+  unitNumber: number;
+  titleEn: string;
+  titleKn: string;
+  color: string;
+  accentColor: string;
+  iconName: string;
+  chapters: ChapterInfo[];
+}
+
 export interface SlideContent {
   id: string;
+  chapterId: string;
+  unitId?: string;
   slideNumber: number;
   categoryEn: string;
   categoryKn: string;
@@ -90,7 +119,31 @@ export interface SlideContent {
     | 'think_and_do'
     | 'roleplay'
     | 'garden'
-    | 'summary';
+    | 'summary'
+    | 'classroom_walls'
+    | 'workers_pride'
+    | 'steps_growth'
+    | 'tara_fire'
+    | 'sadness_circle'
+    | 'positive_talk'
+    | 'friendship_interview'
+    | 'listening_chair'
+    | 'compassion_puppy'
+    | 'inclusive_school'
+    | 'rainbow_gender'
+    | 'ashtavakra'
+    | 'girls_azadi'
+    | 'puberty_care'
+    | 'tapman_water'
+    | 'green_diwali'
+    | 'voting_booth'
+    | 'consumer_rights'
+    | 'digital_boundaries'
+    | 'personal_safety_rules'
+    | 'sports_values'
+    | 'yoga_mudras'
+    | 'health_triangle'
+    | 'national_emblem';
   bulletsEn?: string[];
   bulletsKn?: string[];
   quoteEn?: string;

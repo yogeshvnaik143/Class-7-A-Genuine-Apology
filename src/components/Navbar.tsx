@@ -10,14 +10,16 @@ import {
   Globe, 
   Printer, 
   ExternalLink,
-  Presentation
+  Presentation,
+  BookOpen
 } from 'lucide-react';
-import { LanguageMode } from '../types';
+import { SlideContent, LanguageMode } from '../types';
 import { sound, SpeechNarrator } from '../utils/audio';
 
 interface NavbarProps {
   currentSlideIndex: number;
   totalSlides: number;
+  currentSlide?: SlideContent;
   langMode: LanguageMode;
   setLangMode: (mode: LanguageMode) => void;
   isAutoplay: boolean;
@@ -28,6 +30,7 @@ interface NavbarProps {
   toggleFullscreen: () => void;
   isSpeaking: boolean;
   setIsSpeaking: (val: boolean) => void;
+  onOpenChapterSelector: () => void;
   onOpenGoogleSlidesModal: () => void;
   onOpenPrintModal: () => void;
   onNarrateSlide: () => void;
@@ -36,6 +39,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   currentSlideIndex,
   totalSlides,
+  currentSlide,
   langMode,
   setLangMode,
   isAutoplay,
@@ -45,30 +49,40 @@ export const Navbar: React.FC<NavbarProps> = ({
   isFullscreen,
   toggleFullscreen,
   isSpeaking,
+  onOpenChapterSelector,
   onOpenGoogleSlidesModal,
   onOpenPrintModal,
   onNarrateSlide
 }) => {
   return (
-    <header className="w-full bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 px-4 py-2.5 flex items-center justify-between gap-2 z-40 sticky top-0 shadow-lg">
-      {/* Brand & Chapter Tag */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-md">
-          <Presentation className="w-5 h-5 text-slate-900" />
-        </div>
+    <header className="w-full bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 z-40 sticky top-0 shadow-lg">
+      {/* Brand & Chapter Tag with TOC trigger */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button
+          onClick={() => { sound.playPop(); onOpenChapterSelector(); }}
+          className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 flex items-center justify-center text-slate-950 font-black shadow-md transition-all active:scale-95 group"
+          title="Open Full Book Table of Contents (ಪರಿವಿಡಿ)"
+        >
+          <BookOpen className="w-5 h-5 text-slate-900 group-hover:scale-110 transition-transform" />
+        </button>
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Class 7 • ಮೌಲ್ಯ ಶಿಕ್ಷಣ
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Class 7 • ಮೌಲ್ಯ & ದೈಹಿಕ ಶಿಕ್ಷಣ
             </span>
-            <span className="hidden sm:inline-block text-xs text-slate-400">
-              Chapter 2.1
-            </span>
+            <button
+              onClick={() => { sound.playPop(); onOpenChapterSelector(); }}
+              className="text-[10px] sm:text-xs text-amber-400 hover:text-amber-300 underline font-medium flex items-center gap-0.5"
+            >
+              <span>11 Units (ಪರಿವಿಡಿ)</span>
+            </button>
           </div>
-          <h1 className="text-sm md:text-base font-bold text-white tracking-tight flex items-center gap-1.5">
-            <span>A Genuine Apology</span>
+          <h1 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight flex items-center gap-1.5 max-w-[200px] sm:max-w-md truncate">
+            <span className="truncate">{currentSlide?.titleEn || 'Karnataka Value Education'}</span>
             <span className="text-emerald-400 font-normal">|</span>
-            <span className="text-amber-300 font-kannada font-semibold text-sm">ಪ್ರಾಮಾಣಿಕ ಕ್ಷಮೆಯಾಚನೆ</span>
+            <span className="text-amber-300 font-kannada font-semibold text-xs sm:text-sm truncate">
+              {currentSlide?.titleKn || 'ಮೌಲ್ಯ ಶಿಕ್ಷಣ'}
+            </span>
           </h1>
         </div>
       </div>

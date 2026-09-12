@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, LayoutGrid, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, BookOpen } from 'lucide-react';
 import { sound } from '../utils/audio';
 
 interface SlideNavProps {
@@ -8,6 +8,7 @@ interface SlideNavProps {
   onPrev: () => void;
   onNext: () => void;
   onOpenThumbnails: () => void;
+  onOpenChapterSelector?: () => void;
 }
 
 export const SlideNav: React.FC<SlideNavProps> = ({
@@ -15,12 +16,13 @@ export const SlideNav: React.FC<SlideNavProps> = ({
   total,
   onPrev,
   onNext,
-  onOpenThumbnails
+  onOpenThumbnails,
+  onOpenChapterSelector
 }) => {
   const progressPercent = ((currentIndex + 1) / total) * 100;
 
   return (
-    <footer className="w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 px-4 py-2 flex flex-col gap-1.5 z-30 select-none">
+    <footer className="w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 px-3 sm:px-4 py-2 flex flex-col gap-1.5 z-30 select-none">
       {/* Top micro progress bar */}
       <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
         <div 
@@ -30,40 +32,59 @@ export const SlideNav: React.FC<SlideNavProps> = ({
       </div>
 
       <div className="flex items-center justify-between text-xs text-slate-400">
-        {/* Thumbnails trigger & shortcuts hint */}
-        <div className="flex items-center gap-2">
+        {/* Thumbnails & TOC triggers */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {onOpenChapterSelector && (
+            <button
+              id="open-toc-nav-btn"
+              onClick={() => { sound.playPop(); onOpenChapterSelector(); }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/80 transition-colors font-semibold"
+              title="Table of Contents (ಪರಿವಿಡಿ)"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">11 Units</span>
+              <span>ಪರಿವಿಡಿ</span>
+            </button>
+          )}
+
           <button
             id="open-thumbnails-btn"
             onClick={() => { sound.playPop(); onOpenThumbnails(); }}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors font-medium"
-            title="View all 16 slides grid"
+            title="View all slides grid"
           >
             <LayoutGrid className="w-3.5 h-3.5 text-emerald-400" />
-            <span>All Slides ({currentIndex + 1}/{total})</span>
+            <span>Slide {currentIndex + 1} / {total}</span>
           </button>
-          <span className="hidden md:inline text-slate-500 text-[11px]">
-            Keys: [←] Prev | [→] / [Space] Next
+          <span className="hidden lg:inline text-slate-500 text-[11px]">
+            [←] Prev | [→] / [Space] Next
           </span>
         </div>
 
-        {/* Center Progress Dots */}
-        <div className="hidden sm:flex items-center gap-1">
-          {Array.from({ length: total }).map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-1.5 rounded-full transition-all ${
-                idx === currentIndex
-                  ? 'w-6 bg-emerald-400'
-                  : idx < currentIndex
-                  ? 'w-1.5 bg-emerald-600/70'
-                  : 'w-1.5 bg-slate-700'
-              }`}
-            />
-          ))}
+        {/* Center Progress Indicator */}
+        <div className="hidden sm:flex items-center gap-1 max-w-[280px] overflow-hidden">
+          {total <= 25 ? (
+            Array.from({ length: total }).map((_, idx) => (
+              <div
+                key={idx}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === currentIndex
+                    ? 'w-5 bg-emerald-400'
+                    : idx < currentIndex
+                    ? 'w-1 bg-emerald-600/70'
+                    : 'w-1 bg-slate-700'
+                }`}
+              />
+            ))
+          ) : (
+            <span className="text-[11px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+              {Math.round(progressPercent)}% Completed
+            </span>
+          )}
         </div>
 
         {/* Prev / Next buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             id="prev-slide-btn"
             disabled={currentIndex === 0}

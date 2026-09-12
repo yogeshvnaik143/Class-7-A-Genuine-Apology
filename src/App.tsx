@@ -6,6 +6,7 @@ import { Navbar } from './components/Navbar';
 import { SlideRenderer } from './components/SlideRenderer';
 import { SlideNav } from './components/SlideNav';
 import { SlideThumbnails } from './components/SlideThumbnails';
+import { ChapterSelectorModal } from './components/ChapterSelectorModal';
 import { GoogleSlidesModal } from './components/GoogleSlidesModal';
 import { PrintModal } from './components/PrintModal';
 
@@ -17,6 +18,7 @@ export default function App() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isThumbnailsOpen, setIsThumbnailsOpen] = useState(false);
+  const [isChapterSelectorOpen, setIsChapterSelectorOpen] = useState(false);
   const [isGoogleSlidesModalOpen, setIsGoogleSlidesModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
@@ -143,6 +145,7 @@ export default function App() {
       <Navbar
         currentSlideIndex={currentSlideIndex}
         totalSlides={SLIDES_DATA.length}
+        currentSlide={currentSlide}
         langMode={langMode}
         setLangMode={setLangMode}
         isAutoplay={isAutoplay}
@@ -153,6 +156,7 @@ export default function App() {
         toggleFullscreen={toggleFullscreen}
         isSpeaking={isSpeaking}
         setIsSpeaking={setIsSpeaking}
+        onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
         onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
         onOpenPrintModal={() => setIsPrintModalOpen(true)}
         onNarrateSlide={handleNarrateSlide}
@@ -164,6 +168,7 @@ export default function App() {
           slide={currentSlide}
           langMode={langMode}
           showTeacherNotes={showTeacherNotes}
+          totalSlides={SLIDES_DATA.length}
           onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
         />
       </main>
@@ -175,6 +180,19 @@ export default function App() {
         onPrev={handlePrevSlide}
         onNext={handleNextSlide}
         onOpenThumbnails={() => setIsThumbnailsOpen(true)}
+        onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
+      />
+
+      {/* Chapter & Unit Selector (Table of Contents) Modal */}
+      <ChapterSelectorModal
+        isOpen={isChapterSelectorOpen}
+        onClose={() => setIsChapterSelectorOpen(false)}
+        currentSlideIndex={currentSlideIndex}
+        onSelectSlideIndex={(idx) => {
+          SpeechNarrator.stop();
+          setIsSpeaking(false);
+          setCurrentSlideIndex(idx);
+        }}
       />
 
       {/* Slide Thumbnails Drawer */}

@@ -33,11 +33,29 @@ import {
   ReflectionCloudIllustration, 
   GardenIllustration 
 } from './VectorIllustrations';
+import {
+  ClassroomWallsVisual,
+  WorkersPrideVisual,
+  StepsGrowthVisual,
+  TaraFireVisual,
+  SadnessCircleVisual,
+  TapManWaterVisual,
+  VotingBoothVisual,
+  ConsumerRightsVisual,
+  PersonalSafetyVisual,
+  HealthTriangleVisual,
+  NationalEmblemVisual,
+  PositiveTalkVisual,
+  CompassionPuppyVisual,
+  RainbowGenderVisual,
+  GreenDiwaliVisual
+} from './TextbookIllustrations';
 
 interface SlideRendererProps {
   slide: SlideContent;
   langMode: LanguageMode;
   showTeacherNotes: boolean;
+  totalSlides?: number;
   onOpenGoogleSlidesModal: () => void;
 }
 
@@ -45,6 +63,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
   slide,
   langMode,
   showTeacherNotes,
+  totalSlides,
   onOpenGoogleSlidesModal
 }) => {
   // Interactive state for quiz slide
@@ -128,7 +147,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
             {langMode === 'kn' ? slide.categoryKn : slide.categoryEn}
           </span>
           <span className="text-xs text-slate-400 font-mono">
-            Slide {slide.slideNumber} of 16
+            Slide {slide.slideNumber} of {totalSlides || 16}
           </span>
         </div>
 
@@ -1004,6 +1023,183 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* UNIT 1: CLASSROOM WALLS & KINDNESS JAR */}
+          {slide.visualType === 'classroom_walls' && (
+            <motion.div key="walls-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <ClassroomWallsVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 1: DIGNITY OF LABOUR */}
+          {slide.visualType === 'dignity_of_labour' && (
+            <motion.div key="labour-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <WorkersPrideVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 1: STEPS OF GROWTH */}
+          {slide.visualType === 'steps_growth' && (
+            <motion.div key="growth-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <StepsGrowthVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 1: TARA'S FIRE */}
+          {slide.visualType === 'tara_fire' && (
+            <motion.div key="tara-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <TaraFireVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 3: SADNESS CIRCLE */}
+          {slide.visualType === 'sadness_circle' && (
+            <motion.div key="sadness-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <SadnessCircleVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 3: POSITIVE SELF-TALK */}
+          {slide.visualType === 'positive_talk' && (
+            <motion.div key="pos-talk-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <PositiveTalkVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 4: COMPASSION PUPPY */}
+          {slide.visualType === 'compassion_puppy' && (
+            <motion.div key="puppy-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <CompassionPuppyVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 5: RAINBOW GENDER */}
+          {slide.visualType === 'rainbow_gender' && (
+            <motion.div key="rainbow-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <RainbowGenderVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 7: TAP MAN WATER */}
+          {slide.visualType === 'tapman_water' && (
+            <motion.div key="tapman-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <TapManWaterVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 8: GREEN DIWALI */}
+          {slide.visualType === 'green_diwali' && (
+            <motion.div key="diwali-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <GreenDiwaliVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 9: VOTING BOOTH */}
+          {slide.visualType === 'voting_booth' && (
+            <motion.div key="vote-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <VotingBoothVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 9: CONSUMER RIGHTS */}
+          {slide.visualType === 'consumer_rights' && (
+            <motion.div key="consumer-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <ConsumerRightsVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 10: PERSONAL SAFETY & NO-GO-TELL */}
+          {slide.visualType === 'personal_safety_rules' && (
+            <motion.div key="safety-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <PersonalSafetyVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 11: HEALTH TRIANGLE */}
+          {slide.visualType === 'health_triangle' && (
+            <motion.div key="health-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <HealthTriangleVisual />
+            </motion.div>
+          )}
+
+          {/* UNIT 11: NATIONAL EMBLEM */}
+          {slide.visualType === 'national_emblem' && (
+            <motion.div key="emblem-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <NationalEmblemVisual />
+            </motion.div>
+          )}
+
+          {/* FALLBACK/GENERAL BULLETS LAYOUT FOR ALL OTHER VISUAL TYPES */}
+          {![
+            'cover', 'concept', 'pillars', 'compare', 'formula', 'story1', 'poem', 'quiz',
+            'story2', 'excuses', 'perspective', 'reflection_cloud', 'think_and_do', 'roleplay',
+            'garden', 'summary', 'classroom_walls', 'dignity_of_labour', 'steps_growth',
+            'tara_fire', 'sadness_circle', 'positive_talk', 'compassion_puppy', 'rainbow_gender',
+            'tapman_water', 'green_diwali', 'voting_booth', 'consumer_rights', 'personal_safety_rules',
+            'health_triangle', 'national_emblem'
+          ].includes(slide.visualType) && (
+            <motion.div
+              key={`general-${slide.id}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center"
+            >
+              <div className="lg:col-span-7 space-y-2.5">
+                {slide.bulletsEn?.map((bullet, idx) => (
+                  <div 
+                    key={idx} 
+                    className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 transition-all flex items-start gap-3"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1">
+                      {(langMode === 'bilingual' || langMode === 'en') && (
+                        <p className="text-xs md:text-sm font-semibold text-slate-200 leading-snug">{bullet}</p>
+                      )}
+                      {(langMode === 'bilingual' || langMode === 'kn') && (
+                        <p className="text-xs font-kannada text-amber-200/95 mt-1 leading-snug">{slide.bulletsKn?.[idx]}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {slide.quoteEn && (
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 flex items-start gap-2.5">
+                    <Quote className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      {(langMode === 'bilingual' || langMode === 'en') && (
+                        <p className="text-xs text-amber-100 font-medium italic">"{slide.quoteEn}"</p>
+                      )}
+                      {(langMode === 'bilingual' || langMode === 'kn') && (
+                        <p className="text-xs text-amber-300 font-kannada mt-1">"{slide.quoteKn}"</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="lg:col-span-5 h-full flex flex-col justify-center">
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 shadow-xl flex flex-col items-center text-center space-y-3">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl shadow-inner">
+                    ✨
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">{slide.titleEn}</h4>
+                    <p className="font-kannada text-xs text-amber-300 mt-1">{slide.titleKn}</p>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+                    {slide.subtitleEn || 'Interactive Value Education & Physical Wellbeing Activity Module'}
+                  </p>
+                  <div className="pt-2 border-t border-slate-800 w-full flex items-center justify-center gap-2">
+                    <span className="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-mono">
+                      {slide.categoryEn.split('•')[0]}
+                    </span>
+                  </div>
                 </div>
               </div>
             </motion.div>
