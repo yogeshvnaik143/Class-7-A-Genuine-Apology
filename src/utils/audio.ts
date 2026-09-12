@@ -2,8 +2,18 @@
 
 class SoundEffects {
   private ctx: AudioContext | null = null;
+  private isSoundEnabled: boolean = true;
+
+  setEnabled(enabled: boolean) {
+    this.isSoundEnabled = enabled;
+  }
+
+  isEnabled(): boolean {
+    return this.isSoundEnabled;
+  }
 
   private getContext(): AudioContext | null {
+    if (!this.isSoundEnabled) return null;
     if (typeof window === 'undefined') return null;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;

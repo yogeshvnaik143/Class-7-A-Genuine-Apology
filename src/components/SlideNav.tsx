@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, LayoutGrid, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutGrid, BookOpen, Home } from 'lucide-react';
 import { sound } from '../utils/audio';
 
 interface SlideNavProps {
@@ -9,6 +9,7 @@ interface SlideNavProps {
   onNext: () => void;
   onOpenThumbnails: () => void;
   onOpenChapterSelector?: () => void;
+  onGoHome?: () => void;
 }
 
 export const SlideNav: React.FC<SlideNavProps> = ({
@@ -17,7 +18,8 @@ export const SlideNav: React.FC<SlideNavProps> = ({
   onPrev,
   onNext,
   onOpenThumbnails,
-  onOpenChapterSelector
+  onOpenChapterSelector,
+  onGoHome
 }) => {
   const progressPercent = ((currentIndex + 1) / total) * 100;
 
@@ -34,6 +36,19 @@ export const SlideNav: React.FC<SlideNavProps> = ({
       <div className="flex items-center justify-between text-xs text-slate-400">
         {/* Thumbnails & TOC triggers */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {onGoHome && (
+            <button
+              id="go-home-nav-btn"
+              onClick={() => { sound.playPop(); onGoHome(); }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition-colors font-semibold"
+              title="Return to Unit Selection Menu (ಮುಖಪುಟ)"
+            >
+              <Home className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Units Menu</span>
+              <span>ಮುಖಪುಟ</span>
+            </button>
+          )}
+
           {onOpenChapterSelector && (
             <button
               id="open-toc-nav-btn"

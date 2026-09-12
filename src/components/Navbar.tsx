@@ -34,6 +34,8 @@ interface NavbarProps {
   onOpenGoogleSlidesModal: () => void;
   onOpenPrintModal: () => void;
   onNarrateSlide: () => void;
+  onGoHome?: () => void;
+  selectedUnitNumber?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -52,23 +54,36 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenChapterSelector,
   onOpenGoogleSlidesModal,
   onOpenPrintModal,
-  onNarrateSlide
+  onNarrateSlide,
+  onGoHome,
+  selectedUnitNumber
 }) => {
   return (
     <header className="w-full bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 z-40 sticky top-0 shadow-lg">
       {/* Brand & Chapter Tag with TOC trigger */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {onGoHome && (
+          <button
+            onClick={() => { sound.playPop(); onGoHome(); }}
+            className="px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 border border-amber-500/30 flex items-center gap-1.5 text-xs font-bold transition-all active:scale-95 group shrink-0"
+            title="Return to Unit Selection Home Menu (ಮುಖಪುಟ)"
+          >
+            <span>🏠</span>
+            <span className="hidden sm:inline">Units Menu</span>
+            <span className="font-kannada text-[11px]">ಮುಖಪುಟ</span>
+          </button>
+        )}
         <button
           onClick={() => { sound.playPop(); onOpenChapterSelector(); }}
-          className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 flex items-center justify-center text-slate-950 font-black shadow-md transition-all active:scale-95 group"
+          className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 flex items-center justify-center text-slate-950 font-black shadow-md transition-all active:scale-95 group shrink-0"
           title="Open Full Book Table of Contents (ಪರಿವಿಡಿ)"
         >
-          <BookOpen className="w-5 h-5 text-slate-900 group-hover:scale-110 transition-transform" />
+          <BookOpen className="w-4 h-4 text-slate-900 group-hover:scale-110 transition-transform" />
         </button>
         <div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Class 7 • ಮೌಲ್ಯ & ದೈಹಿಕ ಶಿಕ್ಷಣ
+              Unit {selectedUnitNumber || 1} • ಘಟಕ {selectedUnitNumber || 1}
             </span>
             <button
               onClick={() => { sound.playPop(); onOpenChapterSelector(); }}
@@ -77,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>11 Units (ಪರಿವಿಡಿ)</span>
             </button>
           </div>
-          <h1 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight flex items-center gap-1.5 max-w-[200px] sm:max-w-md truncate">
+          <h1 className="text-xs sm:text-sm md:text-base font-bold text-white tracking-tight flex items-center gap-1.5 max-w-[180px] sm:max-w-xs md:max-w-md truncate">
             <span className="truncate">{currentSlide?.titleEn || 'Karnataka Value Education'}</span>
             <span className="text-emerald-400 font-normal">|</span>
             <span className="text-amber-300 font-kannada font-semibold text-xs sm:text-sm truncate">

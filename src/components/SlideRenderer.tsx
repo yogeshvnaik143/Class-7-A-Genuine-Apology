@@ -50,6 +50,14 @@ import {
   RainbowGenderVisual,
   GreenDiwaliVisual
 } from './TextbookIllustrations';
+import {
+  BasavannaKayakaVisual,
+  ThimmakkaTreesVisual,
+  VisvesvarayaDamVisual,
+  ObavvaBraveryVisual,
+  KabaddiArenaVisual,
+  MankuthimmaVachanaVisual
+} from './KarnatakaHeritageVisuals';
 
 interface SlideRendererProps {
   slide: SlideContent;
@@ -1133,6 +1141,61 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
             </motion.div>
           )}
 
+          {/* KARNATAKA HERITAGE VISUALS */}
+          {slide.visualType === 'basavanna_kayaka' && (
+            <motion.div key="kayaka-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <BasavannaKayakaVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'thimmakka_trees' && (
+            <motion.div key="thimmakka-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <ThimmakkaTreesVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'visvesvaraya_dam' && (
+            <motion.div key="krs-dam-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <VisvesvarayaDamVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'obavva_bravery' && (
+            <motion.div key="obavva-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <ObavvaBraveryVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'kabaddi_arena' && (
+            <motion.div key="kabaddi-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <KabaddiArenaVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'mankuthimma_vachana' && (
+            <motion.div key="mankuthimma-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <MankuthimmaVachanaVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'panchayat_election' && (
+            <motion.div key="panchayat-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <VotingBoothVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'consumer_check' && (
+            <motion.div key="consumer-check-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <ConsumerRightsVisual />
+            </motion.div>
+          )}
+
+          {slide.visualType === 'body_safety' && (
+            <motion.div key="body-safety-layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full">
+              <PersonalSafetyVisual />
+            </motion.div>
+          )}
+
           {/* FALLBACK/GENERAL BULLETS LAYOUT FOR ALL OTHER VISUAL TYPES */}
           {![
             'cover', 'concept', 'pillars', 'compare', 'formula', 'story1', 'poem', 'quiz',
@@ -1140,7 +1203,9 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
             'garden', 'summary', 'classroom_walls', 'dignity_of_labour', 'steps_growth',
             'tara_fire', 'sadness_circle', 'positive_talk', 'compassion_puppy', 'rainbow_gender',
             'tapman_water', 'green_diwali', 'voting_booth', 'consumer_rights', 'personal_safety_rules',
-            'health_triangle', 'national_emblem'
+            'health_triangle', 'national_emblem',
+            'basavanna_kayaka', 'thimmakka_trees', 'visvesvaraya_dam', 'obavva_bravery',
+            'kabaddi_arena', 'mankuthimma_vachana', 'panchayat_election', 'consumer_check', 'body_safety'
           ].includes(slide.visualType) && (
             <motion.div
               key={`general-${slide.id}`}

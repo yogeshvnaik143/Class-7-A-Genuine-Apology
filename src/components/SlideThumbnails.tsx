@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Sparkles, Filter } from 'lucide-react';
 import { SLIDES_DATA } from '../data/slidesData';
+import { SlideContent } from '../types';
 import { sound } from '../utils/audio';
 
 interface SlideThumbnailsProps {
@@ -8,28 +9,31 @@ interface SlideThumbnailsProps {
   onClose: () => void;
   currentIndex: number;
   onSelectSlide: (index: number) => void;
+  slides?: SlideContent[];
 }
 
 export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
   isOpen,
   onClose,
   currentIndex,
-  onSelectSlide
+  onSelectSlide,
+  slides
 }) => {
+  const activeSlides = slides && slides.length > 0 ? slides : SLIDES_DATA;
   const [unitFilter, setUnitFilter] = useState<string>('all');
 
   if (!isOpen) return null;
 
-  const getSlideUnitId = (slide: typeof SLIDES_DATA[0]): string => {
+  const getSlideUnitId = (slide: SlideContent): string => {
     if (slide.unitId) return slide.unitId;
     const match = slide.chapterId?.match(/^ch(\d+)/);
     return match ? `unit-${match[1]}` : 'unit-2';
   };
 
   // Extract unique units
-  const units = Array.from(new Set(SLIDES_DATA.map(s => getSlideUnitId(s)))).filter(Boolean);
+  const units: string[] = Array.from(new Set(activeSlides.map(s => getSlideUnitId(s)))).filter((id): id is string => Boolean(id));
 
-  const filteredSlidesWithIndex = SLIDES_DATA.map((slide, originalIndex) => ({
+  const filteredSlidesWithIndex = activeSlides.map((slide, originalIndex) => ({
     slide,
     originalIndex
   })).filter(({ slide }) => {
@@ -45,7 +49,7 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
           <div>
             <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
-              <span>Textbook Slide Thumbnails ({SLIDES_DATA.length} Slides)</span>
+              <span>Textbook Slide Thumbnails ({activeSlides.length} Slides)</span>
               <span className="text-slate-400 font-normal text-xs sm:text-sm font-kannada">| ಎಲ್ಲಾ ಸ್ಲೈಡ್‌ಗಳು</span>
             </h3>
             <p className="text-xs text-slate-400">Class 7 Value Education & Physical Activity Book • Quick Slide Selector</p>
@@ -71,10 +75,10 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
-            All ({SLIDES_DATA.length})
+            All ({activeSlides.length})
           </button>
           {units.map(uId => {
-            const count = SLIDES_DATA.filter(s => getSlideUnitId(s) === uId).length;
+            const count = activeSlides.filter(s => getSlideUnitId(s) === uId).length;
             const unitName = uId.replace('unit-', 'Unit ');
             return (
               <button

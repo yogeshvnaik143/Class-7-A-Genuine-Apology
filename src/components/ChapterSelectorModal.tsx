@@ -20,13 +20,15 @@ interface ChapterSelectorModalProps {
   onClose: () => void;
   currentSlideIndex: number;
   onSelectSlideIndex: (index: number) => void;
+  onSelectUnit?: (unitId: string) => void;
 }
 
 export const ChapterSelectorModal: React.FC<ChapterSelectorModalProps> = ({
   isOpen,
   onClose,
   currentSlideIndex,
-  onSelectSlideIndex
+  onSelectSlideIndex,
+  onSelectUnit
 }) => {
   const [selectedUnitId, setSelectedUnitId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -143,9 +145,23 @@ export const ChapterSelectorModal: React.FC<ChapterSelectorModalProps> = ({
                   <h4 className="font-bold text-sm text-white">{unit.titleEn}</h4>
                   <span className="text-xs font-kannada text-amber-300 font-semibold">{unit.titleKn}</span>
                 </div>
-                <span className="text-[11px] text-slate-400">
-                  {unit.chapters.length} Chapter{unit.chapters.length > 1 ? 's' : ''}
-                </span>
+                <div className="flex items-center gap-2">
+                  {onSelectUnit && (
+                    <button
+                      onClick={() => {
+                        sound.playPop();
+                        onSelectUnit(unit.id);
+                        onClose();
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all active:scale-95"
+                    >
+                      Teach Unit (೧೮ ಸ್ಲೈಡ್‌ಗಳು) →
+                    </button>
+                  )}
+                  <span className="text-[11px] text-slate-400">
+                    {unit.chapters.length} Chapter{unit.chapters.length > 1 ? 's' : ''}
+                  </span>
+                </div>
               </div>
 
               {/* Chapters Grid */}

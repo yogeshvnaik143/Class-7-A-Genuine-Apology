@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { SLIDES_DATA } from './data/slidesData';
-import { LanguageMode } from './types';
+import { AppViewMode, LanguageMode } from './types';
 import { sound, SpeechNarrator } from './utils/audio';
+import { ALL_UNIT_DECKS, UNITS_METADATA } from './data/units';
+import { HomePage } from './components/HomePage';
 import { Navbar } from './components/Navbar';
 import { SlideRenderer } from './components/SlideRenderer';
 import { SlideNav } from './components/SlideNav';
@@ -11,6 +12,8 @@ import { GoogleSlidesModal } from './components/GoogleSlidesModal';
 import { PrintModal } from './components/PrintModal';
 
 export default function App() {
+  const [viewMode, setViewMode] = useState<AppViewMode>('home');
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('unit-1');
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [langMode, setLangMode] = useState<LanguageMode>('bilingual');
   const [isAutoplay, setIsAutoplay] = useState(false);
@@ -21,9 +24,31 @@ export default function App() {
   const [isChapterSelectorOpen, setIsChapterSelectorOpen] = useState(false);
   const [isGoogleSlidesModalOpen, setIsGoogleSlidesModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const currentSlide = SLIDES_DATA[currentSlideIndex];
+
+  // Active unit deck and slide
+  const activeDeck = ALL_UNIT_DECKS[selectedUnitId] || ALL_UNIT_DECKS['unit-1'];
+  const currentSlide = activeDeck[currentSlideIndex] || activeDeck[0];
+  const currentUnitMeta = UNITS_METADATA.find(u => u.id === selectedUnitId) || UNITS_METADATA[0];
+
+  // Unit Selection Handler
+  const handleSelectUnit = useCallback((unitId: string) => {
+    SpeechNarrator.stop();
+    setIsSpeaking(false);
+    setSelectedUnitId(unitId);
+    setCurrentSlideIndex(0);
+    setViewMode('teach');
+  }, []);
+
+  // Return to Home Menu
+  const handleGoHome = useCallback(() => {
+    SpeechNarrator.stop();
+    setIsSpeaking(false);
+    setIsAutoplay(false);
+    setViewMode('home');
+  }, []);
 
   // Navigation callbacks
   const handlePrevSlide = useCallback(() => {
@@ -35,14 +60,14 @@ export default function App() {
   }, [currentSlideIndex]);
 
   const handleNextSlide = useCallback(() => {
-    if (currentSlideIndex < SLIDES_DATA.length - 1) {
+    if (currentSlideIndex < activeDeck.length - 1) {
       SpeechNarrator.stop();
       setIsSpeaking(false);
       setCurrentSlideIndex(prev => prev + 1);
     } else {
       setIsAutoplay(false);
     }
-  }, [currentSlideIndex]);
+  }, [currentSlideIndex, activeDeck.length]);
 
   // Read aloud narration handler
   const handleNarrateSlide = useCallback(() => {
@@ -52,7 +77,8 @@ export default function App() {
       return;
     }
 
-    const slide = SLIDES_DATA[currentSlideIndex];
+    const slide = activeDeck[currentSlideIndex];
+    if (!slide) return;
     let speechText = '';
 
     if (langMode === 'kn') {
@@ -75,12 +101,12 @@ export default function App() {
       setIsSpeaking(true);
       SpeechNarrator.speak(speechText, 'en', () => setIsSpeaking(false));
     }
-  }, [currentSlideIndex, langMode, isSpeaking]);
+  }, [activeDeck, currentSlideIndex, langMode, isSpeaking]);
 
   // Autoplay timer
   useEffect(() => {
     let timer: any = null;
-    if (isAutoplay) {
+    if (isAutoplay && viewMode === 'teach') {
       timer = setInterval(() => {
         handleNextSlide();
       }, 8000);
@@ -88,7 +114,7 @@ export default function App() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isAutoplay, handleNextSlide]);
+  }, [isAutoplay, viewMode, handleNextSlide]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -98,24 +124,28 @@ export default function App() {
         return;
       }
 
-      if (e.key === 'ArrowRight' || e.key === ' ') {
-        e.preventDefault();
-        sound.playPop();
-        handleNextSlide();
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        sound.playPop();
-        handlePrevSlide();
-      } else if (e.key.toLowerCase() === 'f') {
-        toggleFullscreen();
-      } else if (e.key.toLowerCase() === 'n') {
-        handleNarrateSlide();
+      if (viewMode === 'teach') {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          sound.playPop();
+          handleNextSlide();
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          sound.playPop();
+          handlePrevSlide();
+        } else if (e.key.toLowerCase() === 'f') {
+          toggleFullscreen();
+        } else if (e.key.toLowerCase() === 'n') {
+          handleNarrateSlide();
+        } else if (e.key === 'Escape') {
+          handleGoHome();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNextSlide, handlePrevSlide, handleNarrateSlide]);
+  }, [viewMode, handleNextSlide, handlePrevSlide, handleNarrateSlide, handleGoHome]);
 
   // Fullscreen toggle
   const toggleFullscreen = () => {
@@ -139,49 +169,71 @@ export default function App() {
   return (
     <div 
       ref={containerRef}
-      className="w-full h-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-emerald-500 selection:text-slate-950"
+      className="w-full h-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-amber-500 selection:text-slate-950"
     >
-      {/* Top Navigation */}
-      <Navbar
-        currentSlideIndex={currentSlideIndex}
-        totalSlides={SLIDES_DATA.length}
-        currentSlide={currentSlide}
-        langMode={langMode}
-        setLangMode={setLangMode}
-        isAutoplay={isAutoplay}
-        setIsAutoplay={setIsAutoplay}
-        showTeacherNotes={showTeacherNotes}
-        setShowTeacherNotes={setShowTeacherNotes}
-        isFullscreen={isFullscreen}
-        toggleFullscreen={toggleFullscreen}
-        isSpeaking={isSpeaking}
-        setIsSpeaking={setIsSpeaking}
-        onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
-        onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
-        onOpenPrintModal={() => setIsPrintModalOpen(true)}
-        onNarrateSlide={handleNarrateSlide}
-      />
-
-      {/* Main Slide Interactive Viewport */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <SlideRenderer
-          slide={currentSlide}
+      {viewMode === 'home' ? (
+        <HomePage
+          onSelectUnit={handleSelectUnit}
           langMode={langMode}
-          showTeacherNotes={showTeacherNotes}
-          totalSlides={SLIDES_DATA.length}
+          setLangMode={setLangMode}
+          soundEnabled={soundEnabled}
+          setSoundEnabled={setSoundEnabled}
           onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
         />
-      </main>
+      ) : (
+        <div className="w-full h-full flex flex-col overflow-hidden">
+          {/* Top Navigation */}
+          <Navbar
+            currentSlideIndex={currentSlideIndex}
+            totalSlides={activeDeck.length}
+            currentSlide={currentSlide}
+            langMode={langMode}
+            setLangMode={setLangMode}
+            isAutoplay={isAutoplay}
+            setIsAutoplay={setIsAutoplay}
+            showTeacherNotes={showTeacherNotes}
+            setShowTeacherNotes={setShowTeacherNotes}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
+            isSpeaking={isSpeaking}
+            setIsSpeaking={setIsSpeaking}
+            onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
+            onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+            onOpenPrintModal={() => setIsPrintModalOpen(true)}
+            onNarrateSlide={handleNarrateSlide}
+            onGoHome={handleGoHome}
+            selectedUnitNumber={currentUnitMeta.number}
+          />
 
-      {/* Bottom Controls */}
-      <SlideNav
-        currentIndex={currentSlideIndex}
-        total={SLIDES_DATA.length}
-        onPrev={handlePrevSlide}
-        onNext={handleNextSlide}
-        onOpenThumbnails={() => setIsThumbnailsOpen(true)}
-        onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
-      />
+          {/* 16:9 Presentation Stage Viewport */}
+          <main className="flex-1 w-full h-full flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950 overflow-hidden relative">
+            {/* Ambient subtle glow behind slide */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none" />
+
+            {/* Strict 16:9 Presentation Frame */}
+            <div className="relative w-full max-w-[1560px] aspect-[16/9] max-h-[calc(100vh-125px)] bg-slate-900/95 rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl shadow-black flex flex-col overflow-hidden ring-1 ring-white/5">
+              <SlideRenderer
+                slide={currentSlide}
+                langMode={langMode}
+                showTeacherNotes={showTeacherNotes}
+                totalSlides={activeDeck.length}
+                onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+              />
+            </div>
+          </main>
+
+          {/* Bottom Slide Navigation Bar */}
+          <SlideNav
+            currentIndex={currentSlideIndex}
+            total={activeDeck.length}
+            onPrev={handlePrevSlide}
+            onNext={handleNextSlide}
+            onOpenThumbnails={() => setIsThumbnailsOpen(true)}
+            onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
+            onGoHome={handleGoHome}
+          />
+        </div>
+      )}
 
       {/* Chapter & Unit Selector (Table of Contents) Modal */}
       <ChapterSelectorModal
@@ -193,6 +245,7 @@ export default function App() {
           setIsSpeaking(false);
           setCurrentSlideIndex(idx);
         }}
+        onSelectUnit={handleSelectUnit}
       />
 
       {/* Slide Thumbnails Drawer */}
@@ -205,6 +258,7 @@ export default function App() {
           setIsSpeaking(false);
           setCurrentSlideIndex(idx);
         }}
+        slides={activeDeck}
       />
 
       {/* Google Slides Export Dialog */}

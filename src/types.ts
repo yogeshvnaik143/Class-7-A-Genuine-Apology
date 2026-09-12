@@ -1,4 +1,5 @@
 export type LanguageMode = 'bilingual' | 'en' | 'kn';
+export type AppViewMode = 'home' | 'teach';
 
 export interface QuizOption {
   id: string;
@@ -81,6 +82,22 @@ export interface ChapterInfo {
   slideIds: string[];
 }
 
+export interface UnitOverview {
+  id: string;
+  number: number;
+  titleEn: string;
+  titleKn: string;
+  subtitleEn: string;
+  subtitleKn: string;
+  theme: string;
+  iconName: string;
+  slideCount: number;
+  heritageTagEn: string;
+  heritageTagKn: string;
+  descriptionEn: string;
+  descriptionKn: string;
+}
+
 export interface UnitInfo {
   id: string;
   unitNumber: number;
@@ -122,6 +139,7 @@ export interface SlideContent {
     | 'summary'
     | 'classroom_walls'
     | 'workers_pride'
+    | 'dignity_of_labour'
     | 'steps_growth'
     | 'tara_fire'
     | 'sadness_circle'
@@ -131,19 +149,30 @@ export interface SlideContent {
     | 'compassion_puppy'
     | 'inclusive_school'
     | 'rainbow_gender'
+    | 'domestic_equality'
     | 'ashtavakra'
     | 'girls_azadi'
     | 'puberty_care'
     | 'tapman_water'
+    | 'water_drop'
     | 'green_diwali'
     | 'voting_booth'
+    | 'panchayat_election'
     | 'consumer_rights'
+    | 'consumer_check'
     | 'digital_boundaries'
     | 'personal_safety_rules'
+    | 'body_safety'
     | 'sports_values'
     | 'yoga_mudras'
     | 'health_triangle'
-    | 'national_emblem';
+    | 'national_emblem'
+    | 'basavanna_kayaka'
+    | 'obavva_bravery'
+    | 'thimmakka_trees'
+    | 'visvesvaraya_dam'
+    | 'kabaddi_arena'
+    | 'mankuthimma_vachana';
   bulletsEn?: string[];
   bulletsKn?: string[];
   quoteEn?: string;
