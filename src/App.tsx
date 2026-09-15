@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppViewMode, LanguageMode } from './types';
 import { sound, SpeechNarrator } from './utils/audio';
 import { ALL_UNIT_DECKS, UNITS_METADATA } from './data/units';
@@ -51,7 +52,6 @@ export default function App() {
 
   const currentUnitIndex = UNIT_KEYS.indexOf(selectedUnitId);
   const hasNextUnit = currentUnitIndex !== -1 && currentUnitIndex < UNIT_KEYS.length - 1;
-  const isLastSlide = currentSlideIndex === activeDeck.length - 1;
 
   // Unit Selection Handler
   const handleSelectUnit = useCallback((unitId: string) => {
@@ -157,7 +157,6 @@ export default function App() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Avoid triggering when user is typing in an input
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
         return;
       }
@@ -211,75 +210,97 @@ export default function App() {
         viewMode === 'home' ? 'min-h-screen overflow-y-auto' : 'h-screen flex flex-col overflow-hidden'
       }`}
     >
-      {viewMode === 'home' ? (
-        <HomePage
-          onSelectUnit={handleSelectUnit}
-          langMode={langMode}
-          setLangMode={setLangMode}
-          soundEnabled={soundEnabled}
-          setSoundEnabled={setSoundEnabled}
-          onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
-        />
-      ) : (
-        <div className="w-full h-full flex flex-col overflow-hidden">
-          {/* Top Navigation */}
-          <Navbar
-            currentSlideIndex={currentSlideIndex}
-            totalSlides={activeDeck.length}
-            currentSlide={currentSlide}
-            langMode={langMode}
-            setLangMode={setLangMode}
-            isAutoplay={isAutoplay}
-            setIsAutoplay={setIsAutoplay}
-            showTeacherNotes={showTeacherNotes}
-            setShowTeacherNotes={setShowTeacherNotes}
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-            isSpeaking={isSpeaking}
-            setIsSpeaking={setIsSpeaking}
-            onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
-            onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
-            onOpenPrintModal={() => setIsPrintModalOpen(true)}
-            onNarrateSlide={handleNarrateSlide}
-            onGoHome={handleGoHome}
-            selectedUnitNumber={currentUnitMeta.number}
-          />
+      <AnimatePresence mode="wait">
+        {viewMode === 'home' ? (
+          <motion.div
+            key="home-page-view"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="w-full flex-1 flex flex-col min-h-screen"
+          >
+            <HomePage
+              onSelectUnit={handleSelectUnit}
+              langMode={langMode}
+              setLangMode={setLangMode}
+              soundEnabled={soundEnabled}
+              setSoundEnabled={setSoundEnabled}
+              onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="teach-mode-view"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25 }}
+            className="w-full h-full flex flex-col overflow-hidden"
+          >
+            {/* Top Navigation */}
+            <Navbar
+              currentSlideIndex={currentSlideIndex}
+              totalSlides={activeDeck.length}
+              currentSlide={currentSlide}
+              langMode={langMode}
+              setLangMode={setLangMode}
+              isAutoplay={isAutoplay}
+              setIsAutoplay={setIsAutoplay}
+              showTeacherNotes={showTeacherNotes}
+              setShowTeacherNotes={setShowTeacherNotes}
+              isFullscreen={isFullscreen}
+              toggleFullscreen={toggleFullscreen}
+              isSpeaking={isSpeaking}
+              setIsSpeaking={setIsSpeaking}
+              onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
+              onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+              onOpenPrintModal={() => setIsPrintModalOpen(true)}
+              onNarrateSlide={handleNarrateSlide}
+              onGoHome={handleGoHome}
+              selectedUnitNumber={currentUnitMeta.number}
+            />
 
-          {/* 16:9 Presentation Stage Viewport */}
-          <main className="flex-1 w-full min-h-0 flex items-center justify-center p-2 sm:p-3 md:p-4 bg-slate-950 overflow-hidden relative">
-            {/* Ambient subtle glow behind slide */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none" />
+            {/* Responsive Presentation Stage Viewport */}
+            <main className="flex-1 w-full min-h-0 flex items-center justify-center p-1.5 sm:p-2.5 md:p-4 bg-slate-950 overflow-hidden relative">
+              {/* Ambient subtle glow behind slide */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950 pointer-events-none" />
 
-            {/* Strict 16:9 Presentation Frame with scrollable content inside */}
-            <div className="relative w-full max-w-[1560px] aspect-[16/9] max-h-[calc(100vh-125px)] min-h-[440px] bg-slate-900/95 rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl shadow-black flex flex-col overflow-hidden ring-1 ring-white/5">
-              <SlideRenderer
-                slide={currentSlide}
-                langMode={langMode}
-                showTeacherNotes={showTeacherNotes}
-                totalSlides={activeDeck.length}
-                onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
-                onNextUnit={handleNextUnit}
-                onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
-                hasNextUnit={hasNextUnit}
-              />
-            </div>
-          </main>
+              {/* 
+                Responsive 16:9 Presentation Frame:
+                - On mobile phones/portrait: w-full h-full (flexible responsive card)
+                - On tablet landscape, laptop, desktop, and smartboards: md:aspect-[16/9] md:max-w-[1560px] md:max-h-[calc(100vh-125px)]
+              */}
+              <div className="relative w-full h-full md:h-auto md:aspect-[16/9] md:max-w-[1560px] md:max-h-[calc(100vh-125px)] bg-slate-900/95 rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-800 shadow-2xl shadow-black flex flex-col overflow-hidden ring-1 ring-white/5">
+                <SlideRenderer
+                  slide={currentSlide}
+                  langMode={langMode}
+                  showTeacherNotes={showTeacherNotes}
+                  totalSlides={activeDeck.length}
+                  onOpenGoogleSlidesModal={() => setIsGoogleSlidesModalOpen(true)}
+                  onNextUnit={handleNextUnit}
+                  onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
+                  hasNextUnit={hasNextUnit}
+                />
+              </div>
+            </main>
 
-          {/* Bottom Slide Navigation Bar */}
-          <SlideNav
-            currentIndex={currentSlideIndex}
-            total={activeDeck.length}
-            onPrev={handlePrevSlide}
-            onNext={handleNextSlide}
-            onOpenThumbnails={() => setIsThumbnailsOpen(true)}
-            onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
-            onGoHome={handleGoHome}
-            onNextUnit={handleNextUnit}
-            onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
-            hasNextUnit={hasNextUnit}
-          />
-        </div>
-      )}
+            {/* Bottom Slide Navigation Bar */}
+            <SlideNav
+              currentIndex={currentSlideIndex}
+              total={activeDeck.length}
+              onPrev={handlePrevSlide}
+              onNext={handleNextSlide}
+              onOpenThumbnails={() => setIsThumbnailsOpen(true)}
+              onOpenChapterSelector={() => setIsChapterSelectorOpen(true)}
+              onGoHome={handleGoHome}
+              onNextUnit={handleNextUnit}
+              onOpenCompletionNote={() => setIsCompletionModalOpen(true)}
+              hasNextUnit={hasNextUnit}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chapter & Unit Selector (Table of Contents) Modal */}
       <ChapterSelectorModal

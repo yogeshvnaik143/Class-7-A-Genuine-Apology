@@ -161,7 +161,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
   return (
     <div 
       ref={scrollContainerRef}
-      className="w-full h-full flex flex-col overflow-y-auto overscroll-contain px-4 py-3 md:px-8 md:py-5 bg-slate-950 text-slate-100 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900/50"
+      className="w-full h-full flex flex-col overflow-y-auto overscroll-contain px-3 sm:px-5 md:px-8 py-3 md:py-5 bg-slate-950 text-slate-100 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900/50"
     >
       {/* Slide Header / Category & Title */}
       <motion.div
@@ -169,13 +169,13 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="mb-3 shrink-0"
+        className="mb-2 sm:mb-3 shrink-0"
       >
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
-          <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+        <div className="flex items-center justify-between flex-wrap gap-1.5 sm:gap-2 mb-1">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/30">
             {langMode === 'kn' ? slide.categoryKn : slide.categoryEn}
           </span>
-          <span className="text-xs text-slate-400 font-mono">
+          <span className="text-[11px] sm:text-xs text-slate-400 font-mono">
             Slide {slide.slideNumber} of {totalSlides || 18}
           </span>
         </div>
@@ -183,12 +183,12 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         {/* Dual Title */}
         <div className="space-y-0.5">
           {(langMode === 'bilingual' || langMode === 'en') && (
-            <h2 className="text-xl md:text-3xl font-extrabold text-white tracking-tight">
+            <h2 className="text-lg sm:text-xl md:text-3xl font-extrabold text-white tracking-tight">
               {slide.titleEn}
             </h2>
           )}
           {(langMode === 'bilingual' || langMode === 'kn') && (
-            <h3 className="text-lg md:text-2xl font-bold font-kannada text-amber-300 leading-snug">
+            <h3 className="text-base sm:text-lg md:text-2xl font-bold font-kannada text-amber-300 leading-snug">
               {slide.titleKn}
             </h3>
           )}
@@ -196,7 +196,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
 
         {/* Subtitle if available */}
         {slide.subtitleEn && (
-          <div className="mt-1.5 text-xs md:text-sm text-slate-300 italic border-l-2 border-emerald-500 pl-3 py-0.5 bg-slate-900/40 rounded-r-lg">
+          <div className="mt-1 sm:mt-1.5 text-xs md:text-sm text-slate-300 italic border-l-2 border-emerald-500 pl-2.5 sm:pl-3 py-0.5 bg-slate-900/40 rounded-r-lg">
             {(langMode === 'bilingual' || langMode === 'en') && (
               <p className="font-medium text-slate-200">{slide.subtitleEn}</p>
             )}
@@ -1294,7 +1294,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
       </div>
 
       {/* End-of-Slide Action Strip with Next Unit button */}
-      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 shrink-0 select-none">
+      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2.5 text-xs text-slate-400 shrink-0 select-none">
         <div className="flex items-center gap-2">
           <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-mono text-[11px]">
             {slide.categoryEn.split('•')[0]}
@@ -1310,28 +1310,30 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
         <div className="flex items-center gap-2">
           {/* View Unit Completion Note Button */}
           {isLastSlide && onOpenCompletionNote && (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.94 }}
               onClick={() => {
                 sound.playChime();
                 onOpenCompletionNote();
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold transition-all shadow"
+              className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/50 font-bold transition-all shadow"
               title="View Beautiful Unit Note (ಶಿಕ್ಷಕರ ಸಂದೇಶ)"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Unit Note</span>
               <span className="font-kannada text-[11px]">ಶಿಕ್ಷಕರ ಸಂದೇಶ</span>
-            </button>
+            </motion.button>
           )}
 
           {/* Next Unit Button at the end of slide */}
           {onNextUnit && (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.94 }}
               onClick={() => {
                 sound.playChime();
                 onNextUnit();
               }}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold transition-all shadow-md active:scale-95 ${
+              className={`min-h-[44px] flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-xl font-bold transition-all shadow-md ${
                 isLastSlide
                   ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 ring-2 ring-amber-400/40'
                   : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
@@ -1343,7 +1345,7 @@ export const SlideRenderer: React.FC<SlideRendererProps> = ({
                 {hasNextUnit ? 'ಮುಂದಿನ ಘಟಕ' : 'ಮುಕ್ತಾಯ'}
               </span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           )}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { 
   Trophy, 
@@ -8,10 +9,7 @@ import {
   RotateCcw, 
   Home, 
   X, 
-  Heart, 
-  BookOpen, 
   Quote, 
-  CheckCircle2, 
   GraduationCap
 } from 'lucide-react';
 import { LanguageMode } from '../types';
@@ -58,26 +56,35 @@ export const UnitCompletionModal: React.FC<UnitCompletionModalProps> = ({
   if (!isOpen || !note) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-3xl bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-500/40 rounded-3xl shadow-2xl shadow-amber-500/10 p-5 sm:p-8 text-slate-100 flex flex-col gap-6 my-auto">
-        
-        {/* Close button */}
+    <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.92, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-amber-500/40 rounded-3xl shadow-2xl shadow-amber-500/10 p-4 sm:p-7 text-slate-100 flex flex-col gap-5 my-auto"
+      >
+        {/* Close button with min touch target */}
         <button
           onClick={() => {
             sound.playPop();
             onClose();
           }}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+          className="min-h-[44px] min-w-[44px] absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center justify-center rounded-full bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
           title="Close Note"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Celebration Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-amber-400/10 border border-amber-400/40 text-amber-400 shadow-lg shadow-amber-500/10 mb-1">
-            <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
-          </div>
+        <div className="text-center space-y-2 pt-2 sm:pt-0">
+          <motion.div 
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="inline-flex items-center justify-center p-3 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-amber-400/10 border border-amber-400/40 text-amber-400 shadow-lg shadow-amber-500/10 mb-1"
+          >
+            <Trophy className="w-8 h-8 text-amber-400" />
+          </motion.div>
 
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -167,35 +174,39 @@ export const UnitCompletionModal: React.FC<UnitCompletionModalProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {onReviewUnit && (
-              <button
+              <motion.button
+                whileTap={{ scale: 0.94 }}
                 onClick={() => {
                   sound.playPop();
                   onReviewUnit();
                   onClose();
                 }}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
+                className="min-h-[44px] flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>Review Unit Slides</span>
-              </button>
+              </motion.button>
             )}
             {onGoHome && (
-              <button
+              <motion.button
+                whileTap={{ scale: 0.94 }}
                 onClick={() => {
                   sound.playPop();
                   onGoHome();
                   onClose();
                 }}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
+                className="min-h-[44px] flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
               >
                 <Home className="w-4 h-4" />
                 <span>All Units</span>
-              </button>
+              </motion.button>
             )}
           </div>
 
           {note.nextUnitId ? (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 sound.playChime();
                 if (onProceedToNextUnit && note.nextUnitId) {
@@ -203,27 +214,29 @@ export const UnitCompletionModal: React.FC<UnitCompletionModalProps> = ({
                 }
                 onClose();
               }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all transform active:scale-95"
+              className="min-h-[44px] w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all"
             >
               <span>{langMode === 'kn' ? 'ಮುಂದಿನ ಘಟಕಕ್ಕೆ ತೆರಳಿ' : 'Proceed to Next Unit'}</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
           ) : (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
                 sound.playChime();
                 if (onGoHome) onGoHome();
                 onClose();
               }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition-all"
+              className="min-h-[44px] w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition-all"
             >
               <span>{langMode === 'kn' ? 'ಎಲ್ಲಾ ೧೧ ಘಟಕಗಳು ಸಂಪೂರ್ಣ!' : 'All 11 Units Completed!'}</span>
               <Trophy className="w-4 h-4" />
-            </button>
+            </motion.button>
           )}
         </div>
 
-      </div>
+      </motion.div>
     </div>
   );
 };

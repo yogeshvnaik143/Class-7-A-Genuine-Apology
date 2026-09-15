@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, CheckCircle, Sparkles, Filter } from 'lucide-react';
 import { SLIDES_DATA } from '../data/slidesData';
 import { SlideContent } from '../types';
@@ -42,24 +43,31 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col justify-end animate-in fade-in duration-200">
-      <div className="w-full max-h-[85vh] bg-slate-900 border-t border-slate-700 rounded-t-3xl p-5 sm:p-6 shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col justify-end">
+      <motion.div 
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+        className="w-full max-h-[85vh] bg-slate-900 border-t border-slate-700 rounded-t-3xl p-4 sm:p-6 shadow-2xl flex flex-col"
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <h3 className="text-sm sm:text-lg font-bold text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <span>Textbook Slide Thumbnails ({activeSlides.length} Slides)</span>
-              <span className="text-slate-400 font-normal text-xs sm:text-sm font-kannada">| ಎಲ್ಲಾ ಸ್ಲೈಡ್‌ಗಳು</span>
+              <span className="text-slate-400 font-normal text-xs sm:text-sm font-kannada hidden sm:inline">| ಎಲ್ಲಾ ಸ್ಲೈಡ್‌ಗಳು</span>
             </h3>
             <p className="text-xs text-slate-400">Class 7 Value Education & Physical Activity Book • Quick Slide Selector</p>
           </div>
-          <button
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             onClick={() => { sound.playPop(); onClose(); }}
-            className="p-2 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Unit Filter Pills */}
@@ -69,7 +77,7 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
           </span>
           <button
             onClick={() => { sound.playPop(); setUnitFilter('all'); }}
-            className={`px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap transition-all ${
+            className={`min-h-[38px] px-3 py-1 rounded-xl font-semibold whitespace-nowrap transition-all ${
               unitFilter === 'all'
                 ? 'bg-emerald-600 text-white shadow'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -84,7 +92,7 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
               <button
                 key={uId}
                 onClick={() => { sound.playPop(); setUnitFilter(uId); }}
-                className={`px-2.5 py-1 rounded-lg whitespace-nowrap transition-all text-[11px] ${
+                className={`min-h-[38px] px-3 py-1 rounded-xl whitespace-nowrap transition-all text-xs ${
                   unitFilter === uId
                     ? 'bg-emerald-600 text-white font-bold shadow'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -97,13 +105,15 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
         </div>
 
         {/* Grid of Thumbnails */}
-        <div className="overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 pr-2 pb-4">
+        <div className="overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 pr-1 pb-4">
           {filteredSlidesWithIndex.map(({ slide, originalIndex }) => {
             const isCurrent = originalIndex === currentIndex;
             return (
-              <button
+              <motion.button
                 key={slide.id}
                 id={`thumb-slide-${originalIndex + 1}`}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   sound.playPop();
                   onSelectSlide(originalIndex);
@@ -111,7 +121,7 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
                 }}
                 className={`relative flex flex-col text-left p-2.5 rounded-xl border transition-all group ${
                   isCurrent
-                    ? 'bg-emerald-950/60 border-emerald-400 ring-2 ring-emerald-500/30 shadow-lg scale-[1.02]'
+                    ? 'bg-emerald-950/60 border-emerald-400 ring-2 ring-emerald-500/30 shadow-lg'
                     : 'bg-slate-800/80 border-slate-700 hover:bg-slate-800 hover:border-slate-500'
                 }`}
               >
@@ -139,11 +149,11 @@ export const SlideThumbnails: React.FC<SlideThumbnailsProps> = ({
                 <span className="text-[9px] text-slate-400 mt-2 truncate">
                   {slide.categoryEn.split('•')[0]}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

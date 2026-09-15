@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   Presentation, 
@@ -8,8 +9,7 @@ import {
   AlertCircle, 
   Loader2, 
   Copy, 
-  Check,
-  FileCode
+  Check
 } from 'lucide-react';
 import { SLIDES_DATA } from '../data/slidesData';
 import { sound } from '../utils/audio';
@@ -30,16 +30,14 @@ export const GoogleSlidesModal: React.FC<GoogleSlidesModalProps> = ({ isOpen, on
 
   if (!isOpen) return null;
 
-  // Handle direct Google Slides export using Google Identity Services or existing token
   const handleExportWithOAuth = async () => {
     try {
       sound.playPop();
       setProgress({ status: 'authorizing', message: 'Checking Google Slides authorization...' });
 
-      // Check if google.accounts.oauth2 is available
       if (typeof window !== 'undefined' && (window as any).google?.accounts?.oauth2) {
         const client = (window as any).google.accounts.oauth2.initTokenClient({
-          client_id: '512157328141-client.apps.googleusercontent.com', // Google project number from metadata
+          client_id: '512157328141-client.apps.googleusercontent.com',
           scope: 'https://www.googleapis.com/auth/presentations https://www.googleapis.com/auth/drive.file',
           callback: async (tokenResponse: any) => {
             if (tokenResponse.error) {
@@ -57,16 +55,13 @@ export const GoogleSlidesModal: React.FC<GoogleSlidesModalProps> = ({ isOpen, on
         });
         client.requestAccessToken();
       } else if (tokenInput.trim()) {
-        // Use user-pasted token if OAuth popup was blocked
         await createGoogleSlidesPresentation(tokenInput.trim(), setProgress);
       } else {
-        // Fallback: initiate token prompt
         setProgress({
           status: 'authorizing',
           message: 'Initiating Google Slides connection. If popup was blocked, you can also download the standalone presentation file below.'
         });
         
-        // Mock success / export preview or generate interactive package
         setTimeout(() => {
           setProgress({
             status: 'success',
@@ -83,7 +78,6 @@ export const GoogleSlidesModal: React.FC<GoogleSlidesModalProps> = ({ isOpen, on
     }
   };
 
-  // Generate downloadable standalone interactive HTML presentation file
   const handleDownloadStandaloneHTML = () => {
     sound.playPop();
     const htmlContent = `<!DOCTYPE html>
@@ -136,7 +130,6 @@ export const GoogleSlidesModal: React.FC<GoogleSlidesModalProps> = ({ isOpen, on
     URL.revokeObjectURL(url);
   };
 
-  // Copy full lesson text as markdown
   const handleCopyMarkdown = () => {
     sound.playPop();
     const text = SLIDES_DATA.map(s => `
@@ -156,31 +149,38 @@ ${s.teacherNoteEn ? `\n*Teacher Note:* ${s.teacherNoteEn}\n*ಶಿಕ್ಷಕ�
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.94, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-5 sm:p-6 text-slate-100"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-3.5 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
               <Presentation className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-base text-white">Export to Google Slides</h3>
-              <p className="text-xs text-slate-400">Class 7 Value Education Chapter 2.1</p>
+              <p className="text-xs text-slate-400">Class 7 Value Education Curriculum</p>
             </div>
           </div>
-          <button
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             onClick={() => { sound.playPop(); onClose(); }}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Body content */}
         <div className="py-4 space-y-4">
           <p className="text-xs text-slate-300 leading-relaxed">
-            This module generates an official 16-slide bilingual presentation in English & Kannada with all curriculum content from Chapter 2.1 A Genuine Apology (ಪ್ರಾಮಾಣಿಕ ಕ್ಷಮೆಯಾಚನೆ).
+            This module generates an official bilingual presentation in English & Kannada with all curriculum content and moral stories for 7th Standard.
           </p>
 
           {/* Status notification */}
@@ -215,43 +215,48 @@ ${s.teacherNoteEn ? `\n*Teacher Note:* ${s.teacherNoteEn}\n*ಶಿಕ್ಷಕ�
           )}
 
           {/* Direct Actions */}
-          <div className="space-y-2 pt-1">
-            <button
+          <div className="space-y-2.5 pt-1">
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.96 }}
               onClick={handleExportWithOAuth}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg transition-all active:scale-98"
+              className="min-h-[48px] w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg transition-all"
             >
               <Presentation className="w-4 h-4" />
               <span>Connect & Export to Google Slides</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleDownloadStandaloneHTML}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+              className="min-h-[44px] w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
             >
               <Download className="w-4 h-4 text-emerald-400" />
               <span>Download Standalone Presentation (.html for Smartboards)</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleCopyMarkdown}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60 text-xs transition-all"
+              className="min-h-[44px] w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 border border-slate-700/60 text-xs transition-all"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? 'Copied Lesson Notes to Clipboard!' : 'Copy 16 Slides Content (Bilingual Markdown)'}</span>
-            </button>
+              <span>{copied ? 'Copied Lesson Notes to Clipboard!' : 'Copy Slides Content (Bilingual Markdown)'}</span>
+            </motion.button>
           </div>
         </div>
 
         {/* Footer */}
         <div className="pt-3 border-t border-slate-800 flex justify-end">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.94 }}
             onClick={() => { sound.playPop(); onClose(); }}
-            className="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-medium"
+            className="min-h-[40px] px-4 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-medium transition-colors"
           >
             Close
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
